@@ -26,6 +26,8 @@ END;
 
 RAISE_APPLICATION jsem změnil na RETURN ale nejsem si jisty jestli to je spravne
 
+NEFUNGUJE TREBA TOHLE BE
+
 
 CREATE FUNCTION calculate_vulnerability()
 RETURNS INTEGER
