@@ -25,3 +25,37 @@ BEGIN
 END;
 
 RAISE_APPLICATION jsem změnil na RETURN ale nejsem si jisty jestli to je spravne
+
+
+CREATE FUNCTION calculate_vulnerability()
+RETURNS INTEGER
+AS
+DECLARE
+  team_id INTEGER;
+  num_penalties INTEGER;
+  num_teams_processed INTEGER := 0;
+BEGIN
+  FOR team_id IN (SELECT DISTINCT team_id_for, team_id_against FROM game_plays_players)
+  LOOP
+    num_penalties := (
+      SELECT COUNT(*)
+      FROM game_plays_players
+      JOIN game_plays ON game_plays.id = game_plays_players.game_play_id
+      WHERE (team_id_for = team_id OR team_id_against = team_id)
+        AND game_plays.event = 'Penalty'
+        AND game_plays_players.playertype = 'Penalty'
+    );
+    
+    IF num_penalties < 750 THEN
+      UPDATE team_info SET vulnerability = 0 WHERE id = team_id;
+    ELSIF num_penalties <= 1250 THEN
+      UPDATE team_info SET vulnerability = 1 WHERE id = team_id;
+    ELSE
+      UPDATE team_info SET vulnerability = 2 WHERE id = team_id;
+    END IF;
+    
+    num_teams_processed := num_teams_processed + 1;
+  END LOOP;
+  
+  RETURN num_teams_processed;
+END;
