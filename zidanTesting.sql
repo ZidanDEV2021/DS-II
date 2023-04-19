@@ -59,3 +59,6 @@ BEGIN
   
   RETURN num_teams_processed;
 END;
+
+
+CHYBÍ PŘIDÁNÍ SLOUPCE TEAM_INFO PRES ALTER TABLE
