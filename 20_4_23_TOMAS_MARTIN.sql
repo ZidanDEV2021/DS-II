@@ -37,23 +37,29 @@ CREATE TRIGGER T_Update_Game
 AFTER UPDATE ON Game
 FOR EACH ROW
 BEGIN
-    IF OLD.home_goals <> NEW.home_goals OR OLD.away_goals <> NEW.away_goals THEN
+    IF :OLD.home_goals <> :NEW.home_goals OR :OLD.away_goals <> :NEW.away_goals THEN
         UPDATE Game_Team_Stats
         SET goals_scored = 
             CASE 
-                WHEN team_id = NEW.home_team_id THEN NEW.home_goals
-                WHEN team_id = NEW.away_team_id THEN NEW.away_goals
+                WHEN team_id = :NEW.home_team_id THEN :NEW.home_goals
+                WHEN team_id = :NEW.away_team_id THEN :NEW.away_goals
             END
-        WHERE game_id = NEW.game_id;
+        WHERE game_id = :NEW.game_id;
 
-        IF NEW.home_goals > NEW.away_goals THEN
-            SET NEW.outcome = 'home win';
-        ELSEIF NEW.away_goals > NEW.home_goals THEN
-            SET NEW.outcome = 'away win';
+        IF :NEW.home_goals > :NEW.away_goals THEN
+            UPDATE GAME
+            SET outcome = 'home win'
+            WHERE GAME_ID = :NEW.GAME_ID;
+        ELSIF NEW.away_goals > NEW.home_goals THEN
+            UPDATE GAME
+            SET outcome = 'away win'
+            WHERE GAME_ID = :NEW.GAME_ID;
         ELSE
-            SET NEW.outcome = 'draw';
+            UPDATE GAME
+            SET outcome = 'draw'
+            WHERE GAME_ID = :NEW.GAME_ID;
         END IF;
     END IF;
 END;
 
--- Chybí tam updates s SET NEW.outcome zkusim dopsat
+-- Zkus mozna to jede
