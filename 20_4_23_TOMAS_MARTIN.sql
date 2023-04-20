@@ -56,5 +56,6 @@ BEGIN
     END IF;
 END;
 TObe to funguje ?
+-- Jo funguje mi to uplne se vsim - smaz si stary trigger co mas vytvoreny jebe ti to ten kod ty retard
 
 -- SMAZ SI STARY TRIGGER CO MAS VYTVORENY PRED TIM - KAZI TI VYSLEDEK
