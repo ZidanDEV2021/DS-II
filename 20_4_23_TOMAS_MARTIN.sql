@@ -56,5 +56,14 @@ BEGIN
     END IF;
 END;
 
-
+Error starting at line : 33 in command -
+UPDATE GAME
+SET away_goals = 6
+where game_id = 2000020062
+Error report -
+ORA-04091: tabulka MLC0044.GAME je měněna, trigger/funkce ji nemusí vidět
+ORA-06512: na "MLC0044.T_UPDATE_TEAM_STAT", line 7
+ORA-04088: chyba během provádění triggeru 'MLC0044.T_UPDATE_TEAM_STAT'
+ORA-06512: na "MLC0044.T_UPDATE_GAME", line 3
+ORA-04088: chyba během provádění triggeru 'MLC0044.T_UPDATE_GAME'
 -- FUNKCNI TRIGGER - 11:22 
