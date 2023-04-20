@@ -5,6 +5,7 @@ tak to uprav more
 nejde MORE
 jdeme na tom makat
 je to vpiči more
+tomas uz jede bomby, ted to generuje lepsi, tak snad to pujde prepinam 11:34:33
 -- 1B
 
 CREATE PROCEDURE P_Set_Goalie_Stats (p_game_id INT, p_player_id INT, p_home_or_away CHAR(1), p_shots INT, p_saves INT)
