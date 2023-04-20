@@ -6,6 +6,40 @@ nejde MORE
 jdeme na tom makat
 je to vpiči more
 tomas uz jede bomby, ted to generuje lepsi, tak snad to pujde prepinam 11:34:33
+
+-- TOMAS NEW 1B RESENI NEMAM TO 100% ODLADENO ALE POSILAM 
+CREATE OR REPLACE PROCEDURE P_Set_Goalie_stats (
+    p_game_id INT, 
+    p_player_id INT, 
+    p_home_or_away VARCHAR, 
+    p_shots INT, 
+    p_saves INT
+) AS
+    v_team_id INT;
+    v_count INT;
+BEGIN
+    IF p_home_or_away = 'H' THEN
+        SELECT home_team_id INTO v_team_id FROM Game WHERE game_id = p_game_id;
+    ELSE
+        SELECT away_team_id INTO v_team_id FROM Game WHERE game_id = p_game_id;
+    END IF;
+
+    SELECT COUNT(*) INTO v_count FROM Game_Goalie_stats WHERE game_id = p_game_id AND player_id = p_player_id;
+    
+    IF v_count > 0 THEN
+        UPDATE Game_Goalie_stats
+        SET shots = p_shots, saves = p_saves
+        WHERE game_id = p_game_id AND player_id = p_player_id;
+    ELSE
+        INSERT INTO Game_Goalie_stats (game_id, player_id, team_id, shots, saves)
+        VALUES (p_game_id, p_player_id, v_team_id, p_shots, p_saves);
+    END IF;
+END;
+
+
+------
+
+
 -- 1B
 
 CREATE PROCEDURE P_Set_Goalie_Stats (p_game_id INT, p_player_id INT, p_home_or_away CHAR(1), p_shots INT, p_saves INT)
