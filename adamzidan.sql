@@ -1,2 +1,42 @@
 
-nigga špatne místo af
+CREATE OR REPLACE TRIGGER T_Update_Skater_Stats
+AFTER UPDATE OF goals ON Game_Skater_Stats
+FOR EACH ROW
+DECLARE
+   v_team_id Game_Skater_Stats.team_id%TYPE;
+   v_game_id Game_Skater_Stats.game_id%TYPE;
+   v_old_goals Game_Skater_Stats.goals%TYPE;
+   v_new_goals Game_Skater_Stats.goals%TYPE;
+   v_goals_diff NUMBER;
+BEGIN
+   -- Get the team and game IDs of the updated Game_Skater_Stats entry
+   SELECT team_id, game_id, :OLD.goals, :NEW.goals
+   INTO v_team_id, v_game_id, v_old_goals, v_new_goals
+   FROM Game_Skater_Stats
+   WHERE player_id = :NEW.player_id AND game_id = :NEW.game_id;
+   
+   -- Check if goals statistics have changed
+   IF v_old_goals <> v_new_goals THEN
+      -- Determine whether it's the home or away team
+      DECLARE
+         v_home_team_id Game.home_team_id%TYPE;
+         v_away_team_id Game.away_team_id%TYPE;
+         v_home_goals Game.home_goals%TYPE;
+         v_away_goals Game.away_goals%TYPE;
+      BEGIN
+         SELECT home_team_id, away_team_id, home_goals, away_goals
+         INTO v_home_team_id, v_away_team_id, v_home_goals, v_away_goals
+         FROM Game
+         WHERE game_id = v_game_id;
+         
+         IF v_home_team_id = v_team_id THEN
+            v_goals_diff := v_new_goals - v_old_goals;
+            UPDATE Game SET home_goals = home_goals + v_goals_diff WHERE game_id = v_game_id;
+         ELSIF v_away_team_id = v_team_id THEN
+            v_goals_diff := v_new_goals - v_old_goals;
+            UPDATE Game SET away_goals = away_goals + v_goals_diff WHERE game_id = v_game_id;
+         END IF;
+      END;
+   END IF;
+END;
+/
