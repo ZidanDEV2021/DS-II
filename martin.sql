@@ -40,3 +40,41 @@ BEGIN
 END;
 /
 
+DVOJKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+CREATE OR REPLACE FUNCTION F_Export_Game_Stats(p_game_id IN Game.game_id%TYPE)
+RETURN CLOB
+IS
+   v_xml XMLTYPE;
+   v_output CLOB;
+BEGIN
+   -- Get the game info
+   SELECT '<game id="' || game_id || '">' ||
+          '<home_team id="' || home_team_id || '" abbrev="' || home_team_abbrev || '"/>' ||
+          '<away_team id="' || away_team_id || '" abbrev="' || away_team_abbrev || '"/>' ||
+          '<ice_time_leaders>' ||
+          (
+             -- Get the top three players with longest time on ice
+             SELECT '<player><first_name>' || first_name || '</first_name>' ||
+                    '<last_name>' || last_name || '</last_name>' ||
+                    '<time_on_ice>' || time_on_ice || '</time_on_ice></player>'
+             FROM (
+                    SELECT player.first_name, player.last_name, game_skater_stats.time_on_ice
+                    FROM game_skater_stats
+                    INNER JOIN player ON game_skater_stats.player_id = player.player_id
+                    WHERE game_skater_stats.game_id = p_game_id
+                    ORDER BY game_skater_stats.time_on_ice DESC
+                 )
+             WHERE ROWNUM <= 3
+             FOR XML PATH('')
+          ) ||
+          '</ice_time_leaders>' ||
+          '</game>'
+   INTO v_xml
+   FROM Game
+   WHERE game_id = p_game_id;
+   
+   v_output := v_xml.getClobVal();
+   
+   RETURN v_output;
+END;
+/
