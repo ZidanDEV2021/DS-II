@@ -34,7 +34,7 @@ END;
 -- 1A PRO DOMINIKA
 
 CREATE OR REPLACE TRIGGER T_Update_Game
-AFTER UPDATE ON GAME
+BEFORE UPDATE ON GAME
 FOR EACH ROW
 BEGIN
     IF :OLD.home_goals <> :NEW.home_goals OR :OLD.away_goals <> :NEW.away_goals THEN
@@ -63,3 +63,4 @@ BEGIN
 END;
 
 -- Zkus mozna to jede - druha oprava 11:15
+-- Dopsal jsem tam BEFORE Update 11:17
