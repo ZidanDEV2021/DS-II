@@ -23,3 +23,4 @@ END;
 
 Nedava to moc smysl  je to 1B ?
 To SELECT SUM(CASE WHEN team_id = NEW.home_team_id THEN goals ELSE 0 END) INTO home_goals nejak nesedí 
+je to 1b chat gpt je mimo trosku
