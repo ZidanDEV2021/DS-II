@@ -12,4 +12,4 @@ BEGIN
         SET away_goals = (away_goals + (:new.goals - :old.goals))
         WHERE game_id = :new.game_id;
     END IF;
-END; vymaz si manualne stary trigger neslo to lvuli toho
+END; vymaz si manualne stary trigger neslo to lvuli toho, mel jsem porad ulozeny ten stary trigger a neslo to pres drop vis co
