@@ -1,6 +1,6 @@
 
 zadani na dc
-
+nefacha more
 -- 1B
 
 CREATE PROCEDURE P_Set_Goalie_Stats (p_game_id INT, p_player_id INT, p_home_or_away CHAR(1), p_shots INT, p_saves INT)
