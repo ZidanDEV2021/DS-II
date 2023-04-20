@@ -1,1 +1,2 @@
 
+zadani na dc
