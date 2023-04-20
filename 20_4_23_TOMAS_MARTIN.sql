@@ -20,3 +20,5 @@ BEGIN
     WHERE id = NEW.game_id;
   END IF;
 END;
+
+Nedava to moc smysl  je to 1B ?
