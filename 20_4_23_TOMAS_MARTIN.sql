@@ -34,12 +34,12 @@ END;
 -- 1A PRO DOMINIKA
 
 CREATE OR REPLACE TRIGGER T_Update_Game
-AFTER UPDATE ON Game
+AFTER UPDATE ON GAME
 FOR EACH ROW
 BEGIN
     IF :OLD.home_goals <> :NEW.home_goals OR :OLD.away_goals <> :NEW.away_goals THEN
-        UPDATE Game_Team_Stats
-        SET goals_scored = 
+        UPDATE Game_Teams_Stats
+        SET GOALS = 
             CASE 
                 WHEN team_id = :NEW.home_team_id THEN :NEW.home_goals
                 WHEN team_id = :NEW.away_team_id THEN :NEW.away_goals
@@ -50,7 +50,7 @@ BEGIN
             UPDATE GAME
             SET outcome = 'home win'
             WHERE GAME_ID = :NEW.GAME_ID;
-        ELSIF NEW.away_goals > NEW.home_goals THEN
+        ELSIF :NEW.away_goals > :NEW.home_goals THEN
             UPDATE GAME
             SET outcome = 'away win'
             WHERE GAME_ID = :NEW.GAME_ID;
@@ -62,4 +62,4 @@ BEGIN
     END IF;
 END;
 
--- Zkus mozna to jede
+-- Zkus mozna to jede - druha oprava 11:15
