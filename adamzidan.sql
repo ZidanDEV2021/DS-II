@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE TRIGGER T_Update_Skater_Stats
 AFTER UPDATE OF goals ON Game_Skater_Stats
 FOR EACH ROW
