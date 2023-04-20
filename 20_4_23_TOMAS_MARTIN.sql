@@ -22,3 +22,4 @@ BEGIN
 END;
 
 Nedava to moc smysl  je to 1B ?
+To SELECT SUM(CASE WHEN team_id = NEW.home_team_id THEN goals ELSE 0 END) INTO home_goals nejak nesedí 
