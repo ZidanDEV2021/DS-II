@@ -36,7 +36,9 @@ BEGIN
     END IF;
 END;
 
+EXECUTE P_Set_Goalie_stats(2000020002, 8459579, 'H', 10, 5);
 
+ -- JE TO FUNKCNI MIREK
 ------
 
 
