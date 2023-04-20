@@ -26,3 +26,6 @@ END;
 
 --Pis co nejde kdyztak 
 --Plus nebudou sedet nazvy nekterych atributu 
+
+-- dominik jednicku ti dela tomas uz a na dvojku se zkus podivat na moje XML
+-- melo by to byt podobne: martin.sql
