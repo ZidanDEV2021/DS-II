@@ -1,1 +1,2 @@
 
+nigga špatne místo af
