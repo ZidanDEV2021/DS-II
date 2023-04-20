@@ -47,20 +47,14 @@ BEGIN
         WHERE game_id = :NEW.game_id;
 
         IF :NEW.home_goals > :NEW.away_goals THEN
-            UPDATE GAME
-            SET outcome = 'home win'
-            WHERE GAME_ID = :NEW.GAME_ID;
+            :NEW.outcome := 'home win';
         ELSIF :NEW.away_goals > :NEW.home_goals THEN
-            UPDATE GAME
-            SET outcome = 'away win'
-            WHERE GAME_ID = :NEW.GAME_ID;
+            :NEW.outcome := 'away win';
         ELSE
-            UPDATE GAME
-            SET outcome = 'draw'
-            WHERE GAME_ID = :NEW.GAME_ID;
+            :NEW.outcome := 'draw';
         END IF;
     END IF;
 END;
 
--- Zkus mozna to jede - druha oprava 11:15
--- Dopsal jsem tam BEFORE Update 11:17
+
+-- FUNKCNI TRIGGER - 11:22 
