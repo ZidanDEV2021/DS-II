@@ -24,4 +24,5 @@ BEGIN
   END IF;
 END;
 
---Pis co nejde kdyztak
+--Pis co nejde kdyztak 
+--Plus nebudou sedet nazvy nekterych atributu 
