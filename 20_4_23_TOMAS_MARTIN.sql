@@ -29,3 +29,30 @@ END;
 
 -- dominik jednicku ti dela tomas uz a na dvojku se zkus podivat na moje XML
 -- melo by to byt podobne: martin.sql
+
+
+-- 1A PRO DOMINIKA
+
+CREATE TRIGGER T_Update_Game
+AFTER UPDATE ON Game
+FOR EACH ROW
+BEGIN
+    IF OLD.home_goals <> NEW.home_goals OR OLD.away_goals <> NEW.away_goals THEN
+        UPDATE Game_Team_Stats
+        SET goals_scored = 
+            CASE 
+                WHEN team_id = NEW.home_team_id THEN NEW.home_goals
+                WHEN team_id = NEW.away_team_id THEN NEW.away_goals
+            END
+        WHERE game_id = NEW.game_id;
+
+        IF NEW.home_goals > NEW.away_goals THEN
+            SET NEW.outcome = 'home win';
+        ELSEIF NEW.away_goals > NEW.home_goals THEN
+            SET NEW.outcome = 'away win';
+        ELSE
+            SET NEW.outcome = 'draw';
+        END IF;
+    END IF;
+END;
+
