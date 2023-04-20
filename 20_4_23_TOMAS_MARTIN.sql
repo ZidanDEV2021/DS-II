@@ -56,3 +56,4 @@ BEGIN
     END IF;
 END;
 
+-- Chybí tam updates s SET NEW.outcome zkusim dopsat
