@@ -47,3 +47,19 @@ BEGIN
     
     dbms_output.put_line('New game record created with ID: ' || v_game_id);
 END P_Create_Game;
+
+/*
+We declare the procedure with four input parameters: p_home_short_name, p_away_short_name, p_date_time, and p_venue.
+
+We declare some variables to store the home and away team IDs, season number, and new game ID.
+
+We determine the home team ID and away team ID by querying the Team table based on the input parameters p_home_short_name and p_away_short_name.
+
+We determine the season number based on the month and year of p_date_time. If the month is January to July, we concatenate the previous and current year; otherwise, we concatenate the current and next year.
+
+We check if there is already a regular season match between the two teams by querying the Game table. If there is, we print an error message and exit the procedure.
+
+We determine the new game ID by finding the highest existing ID in the Game table and incrementing it by 1.
+
+We insert a new record into the Game table with the new game ID,
+*/
