@@ -19,3 +19,9 @@ BEGIN
         WHERE game_id = :new.game_id;
     END IF;
 END; tohle se spousti
+
+ORA-04091: table NEU0093.GAME_TEAMS_STATS is mutating, trigger/function may not see it
+ORA-06512: at "NEU0093.T_UPDATE_TEAM_STATS", line 5
+ORA-04088: error during execution of trigger 'NEU0093.T_UPDATE_TEAM_STATS'
+
+kdyz executnu UPDATE
