@@ -1,1 +1,49 @@
-SELECT * FROM dsminejde
+--1 priklad
+CREATE OR REPLACE PROCEDURE P_Create_Game (
+    p_home_short_name IN Game.team_short_name%TYPE,
+    p_away_short_name IN Game.team_short_name%TYPE,
+    p_date_time IN Game.game_datetime%TYPE,
+    p_venue IN Game.venue%TYPE
+) AS
+    v_home_team_id Game.team_id%TYPE;
+    v_away_team_id Game.team_id%TYPE;
+    v_season Game.season%TYPE;
+    v_game_id Game.game_id%TYPE;
+BEGIN
+    -- Determine home team ID
+    SELECT team_id INTO v_home_team_id
+    FROM Team
+    WHERE team_short_name = p_home_short_name;
+    
+    -- Determine away team ID
+    SELECT team_id INTO v_away_team_id
+    FROM Team
+    WHERE team_short_name = p_away_short_name;
+    
+    -- Determine season
+    IF EXTRACT(MONTH FROM p_date_time) BETWEEN 1 AND 7 THEN
+        v_season := TO_CHAR(p_date_time - INTERVAL '1' YEAR, 'YYYY') || TO_CHAR(p_date_time, 'YYYY');
+    ELSE
+        v_season := TO_CHAR(p_date_time, 'YYYY') || TO_CHAR(p_date_time + INTERVAL '1' YEAR, 'YYYY');
+    END IF;
+    
+    -- Check for existing regular season match between the two teams
+    SELECT MAX(game_id) INTO v_game_id
+    FROM Game
+    WHERE (home_team_id = v_home_team_id AND away_team_id = v_away_team_id)
+    OR (home_team_id = v_away_team_id AND away_team_id = v_home_team_id)
+    AND type = 'R';
+    
+    IF v_game_id IS NOT NULL THEN
+        dbms_output.put_line('Error: There is already a regular season match between ' || p_home_short_name || ' and ' || p_away_short_name);
+        RETURN;
+    END IF;
+    
+    -- Insert new game record
+    SELECT NVL(MAX(game_id), 0) + 1 INTO v_game_id FROM Game;
+    
+    INSERT INTO Game (game_id, home_team_id, away_team_id, game_datetime, venue, season, type)
+    VALUES (v_game_id, v_home_team_id, v_away_team_id, p_date_time, p_venue, v_season, 'R');
+    
+    dbms_output.put_line('New game record created with ID: ' || v_game_id);
+END P_Create_Game;
