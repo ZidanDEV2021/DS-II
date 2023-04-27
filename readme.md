@@ -1,7 +1,50 @@
 ![image](https://user-images.githubusercontent.com/53978671/234581981-1e3b0f90-447b-4a64-a87f-056f6c9dc6bd.png)
 
 Funkce
+```rs
+create table officials(official_id int primary key, official_name varchar(50), official_type varchar(50));
 
+create or replace function copy_ff
+return integer
+as
+        v_count1 integer;
+        v_count2 integer;
+        v_counter integer;
+    begin
+        v_counter:=0;
+        DELETE FROM officials;
+        for offi in (select distinct official_name from game_officials)
+        loop
+            select count(*) into v_count1 from GAME_OFFICIALS where OFFICIAL_NAME=offi.OFFICIAL_NAME and OFFICIAL_TYPE='Linesman';
+            select count(*) into v_count2 from GAME_OFFICIALS where OFFICIAL_NAME=offi.OFFICIAL_NAME and OFFICIAL_TYPE='Referee';
+            v_counter:= v_counter+1;
+            if v_count1 = v_count2 then
+                insert into officials(official_id, official_name, official_type) values(v_counter,offi.OFFICIAL_NAME,'Undefined');
+            elsif v_count1 < v_count2 then
+                insert into officials(official_id, official_name, official_type) values(v_counter,offi.OFFICIAL_NAME,'Referee');
+            elsif v_count1 > v_count2 then
+                insert into officials(official_id, official_name, official_type) values(v_counter,offi.OFFICIAL_NAME,'Linesman');
+            end if;
+        end loop;
+        commit;
+        return v_counter;
+    exception
+        when others then
+            RAISE_APPLICATION_ERROR(-20001, 'Nastala chyba');
+        rollback;
+        return 0;
+    end;
+/
+
+DECLARE
+  v_result INTEGER;
+BEGIN
+  v_result := copy_ff();
+  DBMS_OUTPUT.PUT_LINE('Number of rows processed: ' || v_result);
+END;
+
+SELECT * FROM OFFICIALS;
+```
 Syntax:
 ```sql
 CREATE OR REPLACE FUNCTION funkce_název(parametry) RETURN návratový_typ IS
