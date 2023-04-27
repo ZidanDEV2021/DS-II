@@ -75,3 +75,56 @@ BEGIN
         WHERE game_id = p_game_id;
     END IF;
 END;
+
+
+--zadani 3
+
+create or replace PROCEDURE P_CREATE_GAME(p_home_short_name VARCHAR, p_away_short_name VARCHAR, p_date_time DATE, p_venue VARCHAR) AS
+    v_home_team_id INT;
+    v_away_team_id INT;
+    v_cnt INT;
+    v_now DATE;
+    v_year INT;
+    v_month INT;
+    v_season VARCHAR(20);
+    v_new_game_id INT;
+BEGIN
+    SELECT team_id INTO v_home_team_id 
+    FROM Team_info
+    WHERE shortName = p_home_short_name;
+
+    SELECT team_id INTO v_away_team_id
+    FROM Team_info
+    WHERE shortName = p_away_short_name;
+
+    v_year := EXTRACT(YEAR FROM p_date_time);
+    v_month := EXTRACT(YEAR FROM p_date_time);
+
+    IF v_month <= 7 THEN
+        v_season := TO_CHAR(v_year - 1) || TO_CHAR(v_year);
+    ELSE
+        v_season := TO_CHAR(v_year) || TO_CHAR(v_year + 1);
+    END IF;
+
+    SELECT COUNT(*) INTO v_cnt
+    FROM DUAL
+    WHERE EXISTS (
+        SELECT 1
+        FROM GAME
+        WHERE
+            season = v_season AND
+            (home_team_id = v_home_team_id AND away_team_id = v_away_team_id OR home_team_id = v_away_team_id AND away_team_id = v_home_team_id) AND
+            type = 'R'
+    );
+
+    IF v_cnt > 0 THEN
+        dbms_output.put_line('V sezone ' || v_season || ' jiz oba tymy proti sobe hrali.');
+        RETURN;
+    END IF;
+
+    SELECT COALESCE(MAX(game_id), 0) + 1 INTO v_new_game_id
+    FROM Game;
+
+    INSERT INTO Game (game_id, season, type, date_time_GMT, away_team_id, home_team_id, home_goals, away_goals, venue)
+    VALUES (v_new_game_id, v_season, 'R', p_date_time, v_away_team_id, v_home_team_id, 0, 0, p_venue);
+END;
