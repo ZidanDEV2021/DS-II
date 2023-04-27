@@ -250,7 +250,9 @@ begin
   end loop;
 end;
 
-
+BEGIN
+  PrintStat('20192020', 'RW');
+END;
 --json
 
 
