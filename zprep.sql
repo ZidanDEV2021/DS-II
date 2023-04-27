@@ -179,6 +179,14 @@ begin
     dbms_output.put_line(rec.player_id || chr(9) || chr(9) || rec.firstname ||  chr(9) || chr(9) || rec.lastname || chr(9) || chr(9) || rec.primaryPosition || chr(9) || chr(9) || rec.points);
   end loop;
 end;
+--start the function
+declare
+  p_nationality char(3) := 'CAN';
+  p_primaryPosition char(2) := 'C';
+  p_rowCount int := 5;
+begin
+  PrintBestPlayer(p_nationality, p_primaryPosition, p_rowCount);
+end;
 
 --5
 
