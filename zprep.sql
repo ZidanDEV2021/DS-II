@@ -160,6 +160,25 @@ BEGIN
     VALUES (v_new_game_id, v_season, 'R', p_date_time, v_away_team_id, v_home_team_id, 0, 0, p_venue);
 END;
 
+--zadani 5
+
+create or replace procedure PrintBestPlayer(p_nationality char, p_primaryPosition char, p_rowCount int)
+as
+begin
+  for rec in (
+    select * from (
+      select gss.player_id, player_info.firstname, player_info.lastname, player_info.primaryPosition, sum(assists + goals) as points from game_skater_stats gss
+      inner join player_info on gss.player_id=player_info.player_id
+      where player_info.nationality=p_nationality and player_info.primaryPosition=p_primaryPosition
+      group by gss.player_id, player_info.firstname, player_info.lastname, player_info.primaryPosition
+      order by sum(assists + goals) desc
+    ) where rownum <= p_rowCount)
+  loop
+    dbms_output.put_line(rec.player_id || chr(9) || chr(9) || rec.firstname ||  chr(9) || chr(9) || rec.lastname || chr(9) || chr(9) || rec.primaryPosition || chr(9) || chr(9) || rec.points);
+  end loop;
+end;
+
+
 --json
 
 
