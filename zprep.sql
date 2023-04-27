@@ -28,3 +28,50 @@ BEGIN
   end if;
    return v_cnt;
 END;
+
+
+--zadani2
+
+
+create or replace PROCEDURE P_UPDATE_SKATER_GOALS(p_game_id INT, p_player_id INT, p_goals INT) AS
+    v_team_id INT;
+    v_home_team_id INT;
+    v_away_team_id INT;
+    v_cnt INT;
+BEGIN
+    SELECT team_id INTO v_team_id
+    FROM Game_skater_stats
+    WHERE
+        game_id = p_game_id AND
+        player_id = p_player_id;
+
+    SELECT home_team_id, away_team_id INTO v_home_team_id, v_away_team_id
+    FROM Game
+    WHERE game_id = p_game_id;
+
+    UPDATE Game_skater_stats
+    SET goals = p_goals
+    WHERE
+        game_id = p_game_id AND
+        player_id = p_player_id;
+
+    IF v_team_id = v_home_team_id THEN
+        UPDATE Game
+        SET home_goals = 
+            (
+                SELECT SUM(goals)
+                FROM Game_skater_stats
+                WHERE Game.home_team_id = Game_skater_stats.team_id AND Game_skater_stats.game_id = p_game_id
+            )
+        WHERE game_id = p_game_id;
+    ELSIF v_team_id = v_away_team_id THEN
+        UPDATE Game
+        SET away_goals = 
+            (
+                SELECT SUM(goals)
+                FROM Game_skater_stats
+                WHERE Game.away_team_id = Game_skater_stats.team_id AND Game_skater_stats.game_id = p_game_id
+            )
+        WHERE game_id = p_game_id;
+    END IF;
+END;
