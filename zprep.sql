@@ -212,7 +212,7 @@ begin
     group by gss.player_id, player_info.firstName, player_info.lastName, player_info.nationality
     having (sum(gss.goals) + sum(gss.assists)) > 0
     order by Points desc
-    fetch next 10 rows only)
+    fetch next 10 rows only) --top10
   loop
     v_min := floor(rec.AvgTimeOnIce / 60);
     v_sec := rec.AvgTimeOnIce - (v_min * 60);
