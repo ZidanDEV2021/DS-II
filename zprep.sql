@@ -178,6 +178,44 @@ begin
   end loop;
 end;
 
+--6
+
+create or replace procedure PrintSeasonStat(p_season char, p_playerPosition varchar)
+as
+  v_count int := 1;
+  v_min int;
+  v_sec int;
+begin
+  dbms_output.put_line('------------------------ Season: ' || p_season || ', Player Position: ' || p_playerPosition || ' ------------------------');
+  dbms_output.put_line('#Rank' || chr(9) || 'Player       ' || chr(9) || chr(9) || 'Nat' || chr(9) || 'Points' || chr(9) ||
+      'Goals' || chr(9) || 'Assists' || chr(9) || 'PlusMinus'|| chr(9) || 'Games' || chr(9) || 'TimeOnIce' );
+  dbms_output.put_line('--------------------------------------------------------------------------------------');
+
+  for rec in (
+    select player_info.firstName, player_info.lastName, player_info.nationality,  
+      sum(gss.goals) + sum(gss.assists) as Points,  sum(gss.goals) as Goals, sum(gss.assists) as Assists, sum(gss.plusMinus) as PlusMinus,
+      count(*) as Games, avg(timeOnIce) as AvgTimeOnIce
+    from game_skater_stats gss
+    inner join player_info on gss.player_id = player_info.player_id
+    inner join game on gss.game_id = game.game_id
+    where player_info.primaryPosition=p_playerPosition and game.season = p_season
+    group by gss.player_id, player_info.firstName, player_info.lastName, player_info.nationality
+    having (sum(gss.goals) + sum(gss.assists)) > 0
+    order by Points desc
+    fetch next 10 rows only)
+  loop
+    v_min := floor(rec.AvgTimeOnIce / 60);
+    v_sec := rec.AvgTimeOnIce - (v_min * 60);
+    dbms_output.put_line('#' || v_count || '.  ' || chr(9) || rec.firstName || ' ' || rec.lastName || ' ' || chr(9) || chr(9) || rec.nationality || chr(9) || rec.Points || chr(9) ||
+      rec.Goals || chr(9) || rec.Assists || chr(9) || rec.PlusMinus|| chr(9) || rec.Games || chr(9) || v_min || ':' || v_sec);
+    v_count := v_count + 1;
+  end loop;
+  dbms_output.put_line('--------------------------------------------------------------------------------------');
+end; 
+
+
+
+
 
 --json
 
