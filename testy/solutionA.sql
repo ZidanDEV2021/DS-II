@@ -379,3 +379,96 @@ BEGIN
 </game>';
     RETURN v_ret;
 END;
+
+--9A
+Napište proceduru "NationalStarLine(nationality char(3))", která vypíše nejlepší petku dané národnosti. 
+Nejlepší petka bude zahrnovat hráče s nejvyšším počtem bodů (součet gólů a asistencí v tabulce game skater stats): centra (player info.primaryPosition='C'), 
+levé (LW) a pravé (RW) křídlo a dva obránce (D). Řešení postavte na proceduru "PrintBestPlayer(p nationality char, p primaryPosition char, p rowCount int)", 
+kterou budete volat 4x. Procedura bude obsahovat jeden dotaz v kurzoru bez dalšího filtrování záznamů v kurzoru.
+
+Příklad výstupu:
+NationalStarLine():
+exec NationalStarLine(’CZE’);
+exec NationalStarLine(’CAN’);
+--- NationalStarLine: CZE --------------------------------------------------
+player_id firstname lastname primaryPosition points
+----------------------------------------------------------------------------
+8471276 David Krejci C 452
+8459492 Vinny Prospal LW 273
+8448208 Jaromir Jagr RW 483
+8465200 Tomas Kaberle D 257
+8469623 Marek Zidlicky D 215
+----------------------------------------------------------------------------
+--- NationalStarLine: CAN --------------------------------------------------
+player_id firstname lastname primaryPosition points
+----------------------------------------------------------------------------
+8471675 Sidney Crosby C 794
+8473419 Brad Marchand LW 523
+8462042 Jarome Iginla RW 546
+8470613 Brent Burns D 476
+8471724 Kris Letang D 374
+----------------------------------------------------------------------------
+
+
+Pro výběr n záznamů můžete použít konstrukci:
+"select * from ( ... ) where rownum ..."
+kde rownum je pořadové číslo záznamu ve výsledku poddotazu.
+
+Pro oddělení řetězce znakem tabulátor použijte chr(9).
+
+
+select * from (
+  select gss.player_id, player_info.firstname, player_info.lastname, player_info.primaryPosition, sum(assists + goals) as points from game_skater_stats gss
+  inner join player_info on gss.player_id=player_info.player_id
+  where player_info.nationality='CZE' and player_info.primaryPosition='D'
+  group by gss.player_id, player_info.firstname, player_info.lastname, player_info.primaryPosition
+  order by sum(assists + goals) desc
+) where rownum <= 2;
+
+create or replace procedure PrintBestPlayer(p_nationality char, p_primaryPosition char, p_rowCount int)
+as
+begin
+  for rec in (
+    select * from (
+      select gss.player_id, player_info.firstname, player_info.lastname, player_info.primaryPosition, sum(assists + goals) as points from game_skater_stats gss
+      inner join player_info on gss.player_id=player_info.player_id
+      where player_info.nationality=p_nationality and player_info.primaryPosition=p_primaryPosition
+      group by gss.player_id, player_info.firstname, player_info.lastname, player_info.primaryPosition
+      order by sum(assists + goals) desc
+    ) where rownum <= p_rowCount)
+  loop
+    dbms_output.put_line(rec.player_id || chr(9) || chr(9) || rec.firstname ||  chr(9) || chr(9) || rec.lastname || chr(9) || chr(9) || rec.primaryPosition || chr(9) || chr(9) || rec.points);
+  end loop;
+end;
+
+create or replace procedure NationalStarLine(p_nationality char)
+as
+begin
+  dbms_output.put_line('--- NationalStarLine: ' || p_nationality || ' --------------------------------------------------');
+  dbms_output.put_line('player_id' || chr(9) || chr(9) || 'firstname' ||  chr(9) || chr(9) || 'lastname' || chr(9) || chr(9) || 'primaryPosition' || chr(9) || chr(9) || 'points');
+  dbms_output.put_line('----------------------------------------------------------------------------');
+  PrintBestPlayer(p_nationality, 'C', 1);
+  PrintBestPlayer(p_nationality, 'LW', 1);
+  PrintBestPlayer(p_nationality, 'RW', 1);
+  PrintBestPlayer(p_nationality, 'D', 2);
+  dbms_output.put_line('----------------------------------------------------------------------------');
+end;
+
+exec NationalStarLine('CZE');
+exec NationalStarLine('CAN');
+exec NationalStarLine('SVK');
+exec NationalStarLine('USA');
+exec NationalStarLine('SWE');
+exec NationalStarLine('FIN');
+
+
+--10A
+
+
+Napište proceduru "TopTenGoalies(p minGames int)", která vypíše nejlepších 10 brankářů (player info.primaryPosition='G') s počtem odehraných zápasů 
+(záznamů v tabulce game goalie stats) >= p minGames. Výkonnost brankářů bude měřena průměrnou úspěšností svých zásahů (game goalie stats.savepercentage) 
+ve všech odehraných utkáních. Brankáři budou setřízeni dle úspěšnosti zásahů a budou očíslováni od 1 do 10 (maximálně).
+ Procedura bude obsahovat jeden dotaz v kurzoru bez dalšího filtrování záznamů v kurzoru.
+
+
+
