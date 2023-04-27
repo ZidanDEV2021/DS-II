@@ -214,7 +214,31 @@ begin
 end; 
 
 
+--7
 
+create or replace procedure PrintStat(p_season char, p_playerPosition varchar)
+as
+  int count := 1;
+begin
+
+  for rec in (
+    select player_info.firstName, player_info.lastName, player_info.nationality,  
+      sum(gss.goals) + sum(gss.assists) as Points,  sum(gss.goals) as Goals, sum(gss.assists) as Assists, sum(gss.plusMinus) as PlusMinus,
+      avg(timeOnIce) as AvgTimeOnIce
+    from game_skater_stats gss
+    inner join player_info on gss.player_id = player_info.player_id
+    inner join game on gss.game_id = game.game_id
+    where player_info.primaryPosition='RW' and game.season = '20192020'
+    group by gss.player_id, player_info.firstName, player_info.lastName, player_info.nationality
+    having (sum(gss.goals) + sum(gss.assists)) > 0
+    order by Points desc
+    fetch next 10 rows only)
+  loop
+    dbms_output.put_line('#' || count || '.  ' || chr(9) || rec.firstName || ' ' || rec.lastName || chr(9) || rec.nat || chr(9) || rec.Points || chr(9) ||
+      rec.Goals || chr(9) || rec.Assists || chr(9) || rec.PlusMinus || chr(9) || rec.AvgTimeOnIce);
+    count := count + 1;
+  end loop;
+end;
 
 
 --json
