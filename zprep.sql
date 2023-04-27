@@ -128,3 +128,5 @@ BEGIN
     INSERT INTO Game (game_id, season, type, date_time_GMT, away_team_id, home_team_id, home_goals, away_goals, venue)
     VALUES (v_new_game_id, v_season, 'R', p_date_time, v_away_team_id, v_home_team_id, 0, 0, p_venue);
 END;
+
+--zadani 4
