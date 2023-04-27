@@ -30,6 +30,8 @@ BEGIN
 END;
 
 
+SELECT GetStats(2000, 2005, 'skaters') as num_skaters FROM dual;
+
 --zadani2
 
 
