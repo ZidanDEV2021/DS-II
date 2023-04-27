@@ -156,3 +156,159 @@ BEGIN
     END IF;
 END;
 
+
+--json
+
+
+CREATE OR REPLACE FUNCTION F_EXPORT_GAME_STATS_1(p_game_id INT) RETURN CLOB AS
+    v_ret CLOB;
+    v_home_team_id INT;
+    v_away_team_id INT;
+    v_home_team_name VARCHAR(50);
+    v_away_team_name VARCHAR(50);
+    v_first_name VARCHAR(50);
+    v_last_name VARCHAR(50);
+    v_team_id INT;
+BEGIN
+    SELECT
+        home_team_id, away_team_id,
+        (SELECT teamName FROM Team_info WHERE team_id = home_team_id),
+        (SELECT teamName FROM Team_info WHERE team_id = away_team_id)
+    INTO v_home_team_id, v_away_team_id, v_home_team_name, v_away_team_name
+    FROM Game
+    WHERE game_id = p_game_id;
+
+    v_ret := '<game id="' || TO_CHAR(p_game_id) || '">
+    <home_team id="' || TO_CHAR(v_home_team_id) || '" name="' || v_home_team_name || '" />
+    <away_team id="' || TO_CHAR(v_away_team_id) || '" name="' || v_away_team_name || '" />
+    <best_players>';
+
+    FOR v_p IN (
+        SELECT pi.firstName, pi.lastName, gss.team_id
+        FROM
+            Game_skater_stats gss
+            JOIN Player_info pi ON gss.player_id = pi.player_id
+        WHERE
+            gss.game_id = p_game_id AND
+            goals = 
+            (
+                SELECT MAX(goals)
+                FROM Game_skater_stats gss
+                WHERE game_id = p_game_id
+            ) AND goals > 0
+    ) LOOP  
+        v_ret := v_ret || '
+        <player>
+            <first_name>' || v_p.firstName || '</first_name>
+            <last_name>' || v_p.lastName || '</last_name>
+            <team_id>' || v_p.team_id || '</team_id>
+        </player>';
+    END LOOP;
+
+    v_ret := v_ret || '
+    </best_players>
+</game>';
+    RETURN v_ret;
+END;
+
+
+CREATE OR REPLACE FUNCTION F_EXPORT_GAME_STATS_2(p_game_id INT) RETURN CLOB AS
+    v_ret CLOB;
+    v_home_team_id INT;
+    v_away_team_id INT;
+    v_home_team_abbrev VARCHAR(50);
+    v_away_team_abbrev VARCHAR(50);
+    v_first_name VARCHAR(50);
+    v_last_name VARCHAR(50);
+    v_team_id INT;
+BEGIN
+    SELECT
+        home_team_id, away_team_id,
+        (SELECT abbreviation FROM Team_info WHERE team_id = home_team_id),
+        (SELECT abbreviation FROM Team_info WHERE team_id = away_team_id)
+    INTO v_home_team_id, v_away_team_id, v_home_team_abbrev, v_away_team_abbrev
+    FROM Game
+    WHERE game_id = p_game_id;
+
+    v_ret := '<game id="' || TO_CHAR(p_game_id) || '">
+    <home_team id="' || TO_CHAR(v_home_team_id) || '" abbrev="' || v_home_team_abbrev || '" />
+    <away_team id="' || TO_CHAR(v_away_team_id) || '" abbrev="' || v_away_team_abbrev || '" />
+    <ice_time_leaders>';
+
+    FOR v_p IN (
+        SELECT pi.firstName, pi.lastName, gss.timeOnIce
+        FROM
+            Game_skater_stats gss
+            JOIN Player_info pi ON gss.player_id = pi.player_id
+        WHERE
+            gss.game_id = p_game_id
+        ORDER BY timeOnIce DESC            
+        FETCH FIRST 3 ROWS ONLY
+    ) LOOP  
+        v_ret := v_ret || '
+        <player>
+            <first_name>' || v_p.firstName || '</first_name>
+            <last_name>' || v_p.lastName || '</last_name>
+            <time_on_ice>' || v_p.timeOnIce || '</time_on_ice>
+        </player>';
+    END LOOP;
+
+    v_ret := v_ret || '
+    </ice_time_leaders>
+</game>';
+    RETURN v_ret;
+END;
+
+
+
+
+CREATE OR REPLACE FUNCTION F_EXPORT_GAME_STATS_3(p_game_id INT) RETURN CLOB AS
+    v_ret CLOB;
+    v_first_name VARCHAR(50);
+    v_last_name VARCHAR(50);
+    v_team_id INT;
+    v_prev_primaryPosition VARCHAR(10);
+BEGIN
+    v_ret := '<game id="' || TO_CHAR(p_game_id) || '">
+    <players>';
+
+    v_prev_primaryPosition := ' ';
+
+    FOR v_p IN (
+        SELECT pi.primaryPosition, pi.firstName, pi.lastName, gss.goals
+        FROM
+            Game_skater_stats gss
+            JOIN Player_info pi ON gss.player_id = pi.player_id
+        WHERE
+            gss.game_id = p_game_id
+        ORDER BY pi.primaryPosition
+    ) LOOP  
+        IF v_p.primaryPosition != v_prev_primaryPosition THEN
+            IF v_prev_primaryPosition != ' ' THEN
+                v_ret := v_ret || '
+        </' || v_prev_primaryPosition || '>';
+            END IF;
+
+            v_ret := v_ret || '
+        <' || v_p.primaryPosition || '>';
+        END IF;
+
+        v_ret := v_ret || '
+            <player>
+                <first_name>' || v_p.firstName || '</first_name>
+                <last_name>' || v_p.lastName || '</last_name>
+                <goals>' || v_p.goals || '</time_on_ice>
+            </player>';
+        v_prev_primaryPosition := v_p.primaryPosition;
+    END LOOP;
+
+    IF v_prev_primaryPosition != ' ' THEN
+                v_ret := v_ret || '
+        </' || v_prev_primaryPosition || '>';
+    END IF;
+
+    v_ret := v_ret || '
+    </players>
+</game>';
+    RETURN v_ret;
+END;
