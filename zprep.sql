@@ -81,37 +81,6 @@ END;
 
 --zadani 3
 
-
-
-create or replace TRIGGER T_UPDATE_GAME BEFORE UPDATE ON Game FOR EACH ROW
-BEGIN
-    IF :new.away_goals != :old.away_goals THEN
-        UPDATE Game_teams_stats
-        SET goals = :new.away_goals
-        WHERE game_id = :new.game_id AND team_id = :new.away_team_id;
-    END IF;
-
-    IF :new.home_goals != :old.home_goals THEN
-        UPDATE Game_teams_stats
-        SET goals = :new.home_goals
-        WHERE game_id = :new.game_id AND team_id = :new.home_team_id;
-    END IF;
-
-    IF :new.away_goals != :old.away_goals OR :new.home_goals != :old.home_goals THEN
-        IF :new.away_goals > :new.home_goals THEN
-            :new.outcome := 'away win';
-        ELSIF :new.away_goals < :new.home_goals THEN
-            :new.outcome := 'home win';
-        ELSE
-            :new.outcome := 'draw';
-        END IF;
-    END IF;
-END;
-
-
-
---zadani 4
-
 create or replace PROCEDURE P_CREATE_GAME(p_home_short_name VARCHAR, p_away_short_name VARCHAR, p_date_time DATE, p_venue VARCHAR) AS
     v_home_team_id INT;
     v_away_team_id INT;
@@ -162,7 +131,7 @@ BEGIN
     VALUES (v_new_game_id, v_season, 'R', p_date_time, v_away_team_id, v_home_team_id, 0, 0, p_venue);
 END;
 
---zadani 5
+--zadani 4
 
 create or replace procedure PrintBestPlayer(p_nationality char, p_primaryPosition char, p_rowCount int)
 as
@@ -180,7 +149,7 @@ begin
   end loop;
 end;
 
---6
+--5
 
 create or replace procedure PrintSeasonStat(p_season char, p_playerPosition varchar)
 as
@@ -216,7 +185,7 @@ begin
 end; 
 
 
---7
+--6
 
 create or replace procedure PrintStat(p_season char, p_playerPosition varchar)
 as
