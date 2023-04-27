@@ -30,6 +30,37 @@ BEGIN
 END;
 
 
+--changed
+
+create or replace FUNCTION GetStats(p_year_from int, p_year_to int, p_stats_type varchar)
+RETURN int
+AS
+  v_cnt integer;
+BEGIN
+  if (p_stats_type = 'games') then
+    select count(game_id) into v_cnt from game where extract(year from date_time_gmt) between p_year_from and p_year_to;
+
+  elsif (p_stats_type = 'goals') then
+    select count(gp.play_id) into v_cnt from game g
+    join game_plays gp on gp.game_id = g.game_id and gp.event = 'Goal'
+    where extract(year from date_time_gmt) between p_year_from and p_year_to;
+
+  elsif (p_stats_type = 'skaters') then
+    select count(distinct gss.player_id) into v_cnt from game g
+    join game_skater_stats gss on gss.game_id = g.game_id
+    where extract(year from date_time_gmt) between p_year_from and p_year_to;
+
+  elsif (p_stats_type = 'goalies') then
+    select count(distinct ggs.player_id) into v_cnt from game g
+    join game_goalie_stats ggs on ggs.game_id = g.game_id
+    where extract(year from date_time_gmt) between p_year_from and p_year_to;
+  else
+    v_cnt := -1;
+  end if;
+   return v_cnt;
+END;
+
+
 SELECT GetStats(2000, 2005, 'skaters') as num_skaters FROM dual;
 
 --zadani2
