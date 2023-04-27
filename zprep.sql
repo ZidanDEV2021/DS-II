@@ -130,3 +130,29 @@ BEGIN
 END;
 
 --zadani 4
+
+create or replace TRIGGER T_UPDATE_GAME BEFORE UPDATE ON Game FOR EACH ROW
+BEGIN
+    IF :new.away_goals != :old.away_goals THEN
+        UPDATE Game_teams_stats
+        SET goals = :new.away_goals
+        WHERE game_id = :new.game_id AND team_id = :new.away_team_id;
+    END IF;
+
+    IF :new.home_goals != :old.home_goals THEN
+        UPDATE Game_teams_stats
+        SET goals = :new.home_goals
+        WHERE game_id = :new.game_id AND team_id = :new.home_team_id;
+    END IF;
+
+    IF :new.away_goals != :old.away_goals OR :new.home_goals != :old.home_goals THEN
+        IF :new.away_goals > :new.home_goals THEN
+            :new.outcome := 'away win';
+        ELSIF :new.away_goals < :new.home_goals THEN
+            :new.outcome := 'home win';
+        ELSE
+            :new.outcome := 'draw';
+        END IF;
+    END IF;
+END;
+
