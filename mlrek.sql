@@ -1,4 +1,5 @@
 Funkce
+-- nejdou goly
 !!!!!GOLY nefunguji správně zatím!!!!
 -- Vytvoření funkce GetStats pro získání statistik z databáze
 -- Parametry: year_from, year_to, stats_type
