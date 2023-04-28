@@ -1,31 +1,26 @@
 Funkce
 --nejde to orpavit pracujeme na tom ale nevíme ani kokot
--- nejdou goly
-!!!!!GOLY nefunguji správně zatím!!!!
--- Vytvoření funkce GetStats pro získání statistik z databáze
--- Parametry: year_from, year_to, stats_type
--- Výstup: Celková hodnota zvolené statistiky pro zadané období
+
+---Opravene!!!
 
 CREATE OR REPLACE FUNCTION GetStats(year_from INT, year_to INT, stats_type VARCHAR2)
-RETURN INT
+RETURN Number
 IS
-    result INT;
+    result NUMBER;
 BEGIN
--- Kontrola zda jsou zadané roky validní
-
     IF year_from > year_to THEN
         RETURN -1;
     END IF;
 
--- Získání statistiky podle zvoleného typu
     IF stats_type = 'games' THEN
         SELECT COUNT(*) INTO result
         FROM game
         WHERE EXTRACT(YEAR FROM date_time_GMT) BETWEEN year_from AND year_to;
     ELSIF stats_type = 'goals' THEN
-        SELECT SUM(home_goals + away_goals) INTO result
-        FROM game
-        WHERE EXTRACT(YEAR FROM date_time_GMT) BETWEEN year_from AND year_to;
+         select count(gp.play_id) into result
+         from game g
+         join game_plays gp on gp.game_id = g.game_id and gp.event = 'Goal'
+         where extract(year from date_time_gmt) between year_from and year_to;
     ELSIF stats_type = 'skaters' THEN
         SELECT COUNT(DISTINCT player_id) INTO result
         FROM game_skater_stats gs
@@ -37,13 +32,11 @@ BEGIN
         JOIN game g ON gg.game_id = g.game_id
         WHERE EXTRACT(YEAR FROM g.date_time_GMT) BETWEEN year_from AND year_to;
     ELSE
-    -- Pokud je zvolený typ neznámý, vrátíme -1
         RETURN -1;
     END IF;
 
     RETURN result;
 END GetStats;
-
 
 
 Procedura
