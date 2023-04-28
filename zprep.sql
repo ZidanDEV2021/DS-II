@@ -180,6 +180,7 @@ begin
   end loop;
 end;
 --start the function
+--order by points
 declare
   p_nationality char(3) := 'CAN';
   p_primaryPosition char(2) := 'C';
