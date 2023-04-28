@@ -1,3 +1,124 @@
+create or replace procedure prvni
+    (p_id GAME.GAME_ID%type,
+     p_name GAME_OFFICIALS.OFFICIAL_NAME%TYPE,
+     p_type GAME_OFFICIALS.OFFICIAL_TYPE%TYPE)
+as
+    v_game_count integer;
+    v_exp exception ;
+    v_ref_game_count integer;
+    begin
+        select count(*) into v_game_count from GAME where GAME_ID = p_id;
+
+        if v_game_count = 0 then
+            P_PRINT('Hra neexistuje!');
+            raise v_exp;
+        end if;
+
+        if p_type not in('referee','linesman') THEN
+          P_PRINT('Neexistujici typ rozhodciho');
+          raise v_exp;
+        end if;
+
+    select count(*) into v_ref_game_count from GAME
+    join GAME_OFFICIALS GO on GAME.GAME_ID = GO.GAME_ID
+    where OFFICIAL_NAME=p_name;
+        if v_ref_game_count >100 then
+            P_PRINT('Rozhodci je zaneprazdnen!');
+            raise v_exp;
+        else
+            insert into GAME_OFFICIALS(GAME_ID, OFFICIAL_NAME, OFFICIAL_TYPE) values (p_id,p_name,p_type);
+        end if;
+        commit ;
+        P_PRINT('Commit!');
+    exception
+        when others then
+        rollback ;
+        P_PRINT('Rollback');
+    end;
+/
+select count(*) from GAME where GAME_ID =2017020019;
+
+select count(*) from GAME
+join GAME_OFFICIALS GO on GAME.GAME_ID = GO.GAME_ID
+where OFFICIAL_NAME='Andrew Smith';
+
+call prvni(2018020807,'Andrew Smith','linesman');
+/
+
+create or replace procedure druha(
+    p_game_id GAME.GAME_ID%TYPE,
+    p_name GAME_OFFICIALS.OFFICIAL_NAME%type,
+    p_type GAME_OFFICIALS.OFFICIAL_TYPE%TYPE)
+as
+    v_game_count integer;
+    v_exp exception ;
+    v_ref_count integer;
+    begin
+        select count(*) into v_game_count from GAME where GAME_ID = p_game_id;
+        if v_game_count = 0 then
+            P_PRINT('Hra neexistuje');
+            raise v_exp;
+        end if;
+        if p_type <> 'linesman' and p_type <> 'referee' then
+            P_PRINT('Neznamy typ rozhodciho');
+            raise v_exp;
+        end if;
+        select count(*) into v_ref_count from GAME_OFFICIALS where GAME_ID= p_game_id;
+        if v_ref_count < 4 then
+            insert into GAME_OFFICIALS(GAME_ID, OFFICIAL_NAME, OFFICIAL_TYPE) values (p_game_id,p_name,p_type);
+        else
+            P_PRINT('Maximalni pocet rozhodcich na hru');
+            raise v_exp;
+            end if;
+        commit ;
+        P_PRINT('Commit');
+    exception
+        when others then
+        ROLLBACK;
+        P_PRINT('Rollback');
+    end;
+/
+call druha(2017020019, 'Andy McElman', 'linesman');
+/
+select count(*) from GAME_OFFICIALS where GAME_ID=2017020019;
+/
+alter table TEAM_INFO add aggresivity number(1) check (aggresivity in(0, 1, 2 ));
+
+create or replace function druhy
+    return integer
+as
+    v_aggressive integer;
+    v_counter integer;
+    CURSOR v_cursor is select * from GAME_PLAYS;
+    begin
+        v_counter:=0;
+        for team in v_cursor
+        loop
+            SELECT COUNT(event) INTO v_aggressive FROM Game_plays gp
+       JOIN  Game_plays_players gpp ON gpp.play_id = gp.play_id
+       WHERE (team_id_for = team.TEAM_ID_FOR OR team_id_against = team.TEAM_ID_AGAINST) AND gp.event = 'Penalty' AND gpp.playertype = 'DrewBy';
+            if v_aggressive < 750 then
+                update TEAM_INFO set TEAM_INFO.aggresivity = 0 where TEAM_INFO.TEAM_ID = team;
+            end if;
+            if v_aggressive between 750 and 1250 then
+                update TEAM_INFO set TEAM_INFO.aggresivity = 1 where TEAM_INFO.TEAM_ID = team;
+            end if;
+            if v_aggressive > 1250 then
+                update TEAM_INFO set TEAM_INFO.aggresivity = 2 where TEAM_INFO.TEAM_ID = team;
+            end if;
+            v_counter:=v_counter+1;
+            end loop;
+    return v_counter;
+    exception
+        when others then
+        return -1;
+    end;
+/
+call druhy();
+
+
+
+
 create table officials(official_id int primary key, official_name varchar(50), official_type varchar(50));
 
 create or replace function copy_ff
