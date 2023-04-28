@@ -1,4 +1,5 @@
 Funkce
+--nejde to orpavit pracujeme na tom ale nevíme ani kokot
 -- nejdou goly
 !!!!!GOLY nefunguji správně zatím!!!!
 -- Vytvoření funkce GetStats pro získání statistik z databáze
