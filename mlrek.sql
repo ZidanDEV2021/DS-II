@@ -1,14 +1,21 @@
 Funkce
 
+-- Vytvoření funkce GetStats pro získání statistik z databáze
+-- Parametry: year_from, year_to, stats_type
+-- Výstup: Celková hodnota zvolené statistiky pro zadané období
+
 CREATE OR REPLACE FUNCTION GetStats(year_from INT, year_to INT, stats_type VARCHAR2)
 RETURN INT
 IS
     result INT;
 BEGIN
+-- Kontrola zda jsou zadané roky validní
+
     IF year_from > year_to THEN
         RETURN -1;
     END IF;
 
+-- Získání statistiky podle zvoleného typu
     IF stats_type = 'games' THEN
         SELECT COUNT(*) INTO result
         FROM game
@@ -28,6 +35,7 @@ BEGIN
         JOIN game g ON gg.game_id = g.game_id
         WHERE EXTRACT(YEAR FROM g.date_time_GMT) BETWEEN year_from AND year_to;
     ELSE
+    -- Pokud je zvolený typ neznámý, vrátíme -1
         RETURN -1;
     END IF;
 
@@ -37,6 +45,9 @@ END GetStats;
 
 
 Procedura
+-- Vytvoření procedury PrintStats, která využije funkci GetStats a vypíše zadané statistiky
+-- Parametry: year_from, year_to
+
 
 CREATE OR REPLACE PROCEDURE PrintStats(year_from INT, year_to INT)
 IS
@@ -45,11 +56,13 @@ IS
     players INT;
     goalkeepers INT;
 BEGIN
+-- Získání statistik pomocí funkce GetStats
     games_played := GetStats(year_from, year_to, 'games');
     goals_scored := GetStats(year_from, year_to, 'goals');
     players := GetStats(year_from, year_to, 'skaters');
     goalkeepers := GetStats(year_from, year_to, 'goalies');
 
+-- Výpis statistik
     DBMS_OUTPUT.PUT_LINE('Období: ' || year_from || ' - ' || year_to);
     DBMS_OUTPUT.PUT_LINE('Počet odehraných zápasů: ' || games_played);
     DBMS_OUTPUT.PUT_LINE('Počet vstřelených gólů: ' || goals_scored);
@@ -59,6 +72,8 @@ END PrintStats;
 
 
 Zapnutí
+-- Použití procedury PrintStats pro získání statistik mezi roky 2000 a 2005
+-- Nejprve je třeba povolit DBMS_OUTPUT
 
 SET SERVEROUTPUT ON;
 BEGIN
