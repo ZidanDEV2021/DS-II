@@ -1,5 +1,5 @@
 Funkce
---nejde to orpavit pracujeme na tom ale nevíme ani kokot
+
 
 ---Opravene!!!
 
