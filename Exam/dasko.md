@@ -247,7 +247,7 @@ a zámky mohou být uvolněny před ukončením transakce
   IO Cost dotazu se selekcí na primární klíč je tedy: IO Cost = h + 2
 
   ## INDEX TYPU B-TREE
-  - V případě dotazů které vracejí relativně málo záznamů v poměru počtu záznamů tabulky je vhodné vytvořit index: CREATE INDEX <name> ON <table>(<list_of_atributes>)
+  - V případě dotazů které vracejí relativně málo záznamů v poměru počtu záznamů tabulky je vhodné vytvořit index: `CREATE INDEX <name> ON <table>(<list_of_atributes>)`
   - Nejčastěji se používá varianta B+-strom, která obsahuje indexované položky pouze v listových uzlech
   
   ## VLASTNOSTI B+-Tree řádu C:
@@ -265,17 +265,17 @@ a zámky mohou být uvolněny před ukončením transakce
 
   ## SLOŽENÝ KLÍČ INDEXU
   - Když klíč obsahuje více než jeden atribut je to složený klíč
-  - Klíče jsou v uzlech B-Stromu setřízeny dle atributů tak jak byly uvedeny v definici CREATE INDEX
+  - Klíče jsou v uzlech B-Stromu setřízeny dle atributů tak jak byly uvedeny v definici `CREATE INDEX`
 
   ## BODOVÝ DOTAZ A SLOŽENÝ KLÍČ
-  - Dotaz musí odpovídat lexikografickém uspořádání, např v select příkazu: SELECT .... WHERE idOrder = 12356 AND idProduct = 47506; V tabulce jsou tyto indexy serazeny vedle sebe
+  - Dotaz musí odpovídat lexikografickém uspořádání, např v select příkazu: `SELECT .... WHERE idOrder = 12356 AND idProduct = 47506;` V tabulce jsou tyto indexy serazeny vedle sebe
   - (idOrder, idProduct) je tedy primární klíč a bude proveden bodový dotaz v B-Stromu
 
   ## ROZSAHOVÝ DOTAZ A SLOŽENÝ KLÍČ	
   - K jedné hodnotě idOrder náleží 0 až více záznamů -> TABLE ACCES BY INDEX ROWID BATCHED.. INDEX RANGE SCAN
 
   ## Složený klíč bez použití indexu
-  - Dotaz nám neodpovída lexikografickému uspořádání -> SELECT ... WHERE idProduct = 32342 -> chybí hodnoty atributu idOrder
+  - Dotaz nám neodpovída lexikografickému uspořádání -> `SELECT ... WHERE idProduct = 32342` -> chybí hodnoty atributu idOrder
   - V B-Stromu je tedy možné získat výsledek jeno sekvenčním průchodem -> DBS vyhodnotí, že výsledek by byl přes sekvenční průchod B-Stromem moc 
   vysoký tak radši zvolí průchod haldou -> v tomto případě to trvá taky déle než pomocí indexu
 
