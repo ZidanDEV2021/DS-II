@@ -208,7 +208,7 @@ a zámky mohou být uvolněny před ukončením transakce
 	- SHARE ROW EXCLUSIVE (SRX) - povoluje dalsim transakcim dotazovani, nepovoluje získání klíče S 
 	- EXCLUSIVE (X) - nepovoluje zadne operace
 		
-  ##Příkaz LOCK TABLE <nazvy tabulek> IN <lock_type> MODE [NOWAIT]; 
+  ## Příkaz LOCK TABLE <nazvy tabulek> IN <lock_type> MODE [NOWAIT]; 
   - lock_type muze byt vyse zminene zamky + SHARE UPDATE (stejne jako ROW SHARE)
   - NOWAIT znamená že systém nečeká s přidělením zámku pokud je tabulka zamčena jiným uživatlem
   - Systém uvolní všechny zámky na konci transakce 
