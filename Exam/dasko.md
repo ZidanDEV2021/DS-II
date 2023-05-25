@@ -18,7 +18,7 @@ def add_column(table_name, column_name, column_type):
 # PREZENTACE 6
 
 ## Vlastnosti ACID [A - atomičnost, C - correctness, I - Isolation, D - Durability]
-# (Více informací v PREZENTACI 10)
+#### (Více informací v PREZENTACI 10)
 
 ## Odložená aktualizace NO-UNDO / REDO
  - Provádí se až po potvrzení transakce, změny se nejprve uloží do log souboru a následně do databáze.
