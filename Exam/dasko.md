@@ -1,6 +1,6 @@
 # PREZENTACE 5 - Statické a Dynamické SQL
 
-## Příklady dynamického SQL, které nejde použít jako statické SQL [V pythonu]
+### Příklady dynamického SQL, které nejde použít jako statické SQL [V pythonu]
 
 Tyto dynamické SQL nejde použít jako statické, protože nemáme pevně zadané proměnné jako `table_name`, `column_name` nebo `column_type`.
 ```sql
